@@ -1,0 +1,222 @@
+  method CHECK_QUALITYMNGCNTLKEY.
+
+    data:
+     lt_key type /bobf/t_frw_key,
+     lt_key1 type /bobf/t_frw_key,
+     lt_plant type itproductplantwd,
+     ls_plant type isproductplantwd,
+*     lt_failed_key type /bobf/t_frw_key,
+     lt_messages type ref to /bobf/if_frw_message,
+     lt_Product type ITPRODUCTWD,
+     ls_Product type ref to ISPRODUCTWD,
+     lt_plantQT type  ITPRODUCTPLANTQTMANAGEMENTWD,
+     ls_plantQT type ref to ISPRODUCTPLANTQTMANAGEMENTWD.
+    data ls_key        type /bobf/s_frw_key.
+    data lo_message    TYPE REF TO CM_DRAFTPRD_MESSAGE.
+    data ls_location   type /bobf/s_frw_location.
+    FIELD-SYMBOLS: <ls_key>  LIKE LINE OF lt_key.
+    clear eo_message.
+    clear et_failed_key.
+
+
+* io_read->retrieve(
+*      EXPORTING
+*        iv_node                 =   if_i_productwd_c=>sc_node-i_productwd
+*        it_key                  =     it_key
+**        iv_before_image         = ABAP_FALSE    " Data Element for Domain BOOLE: TRUE (="X") and FALSE (=" ")
+*        iv_fill_data            = ABAP_TRUE    " Data element for domain BOOLE: TRUE (='X') and FALSE (=' ')
+**        it_requested_attributes =     " List of Names (e.g. Fieldnames)
+*      IMPORTING
+**        eo_message              =     " Message Object
+*        et_data                 =     lt_plantQT
+*        et_failed_key           =  et_failed_key
+**        et_node_cat             =     " Node Category Assignment
+*    ).
+*
+* check lt_Product is not initial.
+*
+*
+**for qtmanagement
+*
+*
+*io_read->retrieve(
+*      EXPORTING
+*        iv_node                 =   if_i_productwd_c=>sc_node-i_Productplantqtmanagementwd
+*        it_key                  =     it_key
+**        iv_before_image         = ABAP_FALSE    " Data Element for Domain BOOLE: TRUE (="X") and FALSE (=" ")
+*        iv_fill_data            = ABAP_TRUE    " Data element for domain BOOLE: TRUE (='X') and FALSE (=' ')
+**        it_requested_attributes =     " List of Names (e.g. Fieldnames)
+*      IMPORTING
+**        eo_message              =     " Message Object
+*        et_data                 =     lt_plantQT
+*        et_failed_key           =  et_failed_key
+**        et_node_cat             =     " Node Category Assignment
+*    ).
+*
+*    check lt_plantQT is not initial.
+*
+*    IO_READ->retrieve_by_association(
+*      EXPORTING
+*        iv_node                 =     if_i_productwd_c=>sc_node-i_Productplantqtmanagementwd
+*        it_key                  =     it_key
+*        iv_association          =     if_i_productwd_c=>sc_association-i_Productplantqtmanagementwd-to_root
+**        is_parameters           =
+**        it_filtered_attributes  =     " List of Names (e.g. Fieldnames)
+*        iv_fill_data            = ABAP_true    " Data Element for Domain BOOLE: TRUE (="X") and FALSE (=" ")
+**        iv_before_image         = ABAP_FALSE    " Data Element for Domain BOOLE: TRUE (="X") and FALSE (=" ")
+**        it_requested_attributes =     " List of Names (e.g. Fieldnames)
+*      IMPORTING
+*        eo_message              =     lt_messages
+*        et_data                 =     lt_root
+**        et_key_link             =     lt_key
+*        et_target_key           =     lt_key
+*        et_failed_key           =     lt_failed_key
+*    ).
+*
+*
+**checking for productmanagement procurement key
+*
+*
+*LOOP AT lt_plantQT REFERENCE INTO lr_plantQT.
+*   if lr_plantQT->QUALITYMGMTCTRLKEY is not INITIAL.
+*
+*     if lt_Product is INITIAL.
+*        LS_KEY-KEY = lr_plantQT->KEY.
+*        APPEND LS_KEY TO ET_FAILED_KEY.
+*        LS_LOCATION-BO_KEY = IF_I_PRODUCTWD_C=>SC_BO_KEY."IS_CTX-BO_KEY.
+*        LS_LOCATION-NODE_KEY = IF_I_PRODUCTWD_C=>sc_node-i_Productplantqtmanagementwd."IS_CTX-NODE_KEY.
+*        LS_LOCATION-KEY = lr_Product->KEY.
+*        INSERT IF_I_PRODUCTWD_C=>SC_NODE_ATTRIBUTE-i_Productplantqtmanagementwd-QUALITYMGMTCTRLKEY
+*              INTO TABLE ls_location-attributes.
+*
+*       CREATE OBJECT lo_message
+*        EXPORTING
+*        textid = CM_DRAFTPRD_MESSAGE=>chk_qualitymanagementctrlkey
+*        SEVERITY = CM_DRAFTPRD_MESSAGE=>CO_SEVERITY_ERROR
+*        SYMPTOM = /BOBF/IF_FRW_MESSAGE_SYMPTOMS=>CO_BO_INCONSISTENCY
+*        lifetime = /BOBF/IF_FRW_C=>SC_LIFETIME_SET_BY_BOPF
+*        ms_origin_location = ls_location
+**
+*         .
+*
+*      IF EO_MESSAGE IS NOT BOUND.
+*         EO_MESSAGE = /BOBF/CL_FRW_FACTORY=>GET_MESSAGE( ).
+*       ENDIF.
+*         EO_MESSAGE->ADD_CM( EXPORTING IO_MESSAGE = LO_MESSAGE ).
+*
+*       endif.
+*
+*
+*
+*if lt_Product is not INITIAL.
+*     loop at lt_Product REFERENCE INTO lr_Product.
+*       if lr_Product->QltyMgmtInProcmtIsActive is initial.
+*
+*      LS_KEY-KEY = lr_plantQT->KEY.
+*        APPEND LS_KEY TO ET_FAILED_KEY.
+*        LS_LOCATION-BO_KEY = IF_I_PRODUCTWD_C=>SC_BO_KEY."IS_CTX-BO_KEY.
+*        LS_LOCATION-NODE_KEY = IF_I_PRODUCTWD_C=>sc_node-i_Productplantqtmanagementwd."IS_CTX-NODE_KEY.
+*        LS_LOCATION-KEY = lr_plantQT->KEY.
+*        INSERT IF_I_PRODUCTWD_C=>SC_NODE_ATTRIBUTE-i_Productplantqtmanagementwd-QUALITYMGMTCTRLKEY
+*              INTO TABLE ls_location-attributes.
+*
+*       CREATE OBJECT lo_message
+*        EXPORTING
+*        textid = CM_DRAFTPRD_MESSAGE=>chk_qualitymanagementctrlkey
+*        SEVERITY = CM_DRAFTPRD_MESSAGE=>CO_SEVERITY_ERROR
+*        SYMPTOM = /BOBF/IF_FRW_MESSAGE_SYMPTOMS=>CO_BO_INCONSISTENCY
+*        lifetime = /BOBF/IF_FRW_C=>SC_LIFETIME_SET_BY_BOPF
+*        ms_origin_location = ls_location
+**
+*         .
+*
+*      IF EO_MESSAGE IS NOT BOUND.
+*         EO_MESSAGE = /BOBF/CL_FRW_FACTORY=>GET_MESSAGE( ).
+*       ENDIF.
+*         EO_MESSAGE->ADD_CM( EXPORTING IO_MESSAGE = LO_MESSAGE ).
+*
+*         endif.
+*         endloop.
+*endif.
+*endif.
+*ENDLOOP.
+
+
+
+**********************************7-2-2016
+ io_read->retrieve( EXPORTING iv_node         = if_i_productwd_c=>sc_node-I_PRODUCTPLANTQTMANAGEMENTWD
+                                 it_key          = it_key
+                                 iv_before_image = abap_false
+                                 iv_fill_data    = abap_true
+                       IMPORTING
+                                 et_data         = lt_PLANTQT
+                                 et_failed_key   = et_failed_key ).
+
+    LOOP AT lt_PLANTQT ASSIGNING FIELD-SYMBOL(<ls_PLANTQT>).
+      APPEND INITIAL LINE TO lt_key ASSIGNING <ls_key>.
+      <ls_key>-key = <ls_PLANTQT>-KEY.
+    ENDLOOP.
+
+
+
+    io_read->retrieve_by_association( EXPORTING iv_node        = if_i_productwd_c=>sc_node-I_PRODUCTPLANTQTMANAGEMENTWD
+                                                it_key         = lt_key
+                                                iv_association = if_i_productwd_c=>sc_association-I_PRODUCTPLANTQTMANAGEMENTWD-TO_PARENT
+                                                iv_fill_data   = abap_true
+                                     IMPORTING
+                                                et_data        = lt_plant
+                                                et_failed_key  = et_failed_key ).
+
+*     LOOP AT lt_plant ASSIGNING FIELD-SYMBOL(<ls_plant>).
+*      APPEND INITIAL LINE TO lt_key ASSIGNING <ls_key>.
+*      <ls_key>-key = <ls_plant>-PARENT_KEY.
+*    ENDLOOP.
+
+     io_read->retrieve_by_association( EXPORTING iv_node        = if_i_productwd_c=>sc_node-I_PRODUCTPLANTQTMANAGEMENTWD
+                                                it_key         = lt_key
+                                                iv_association = if_i_productwd_c=>sc_association-I_PRODUCTPLANTQTMANAGEMENTWD-TO_ROOT
+                                                iv_fill_data   = abap_true
+                                     IMPORTING
+                                                et_data        = lt_PRODUCT
+                                                et_failed_key  = et_failed_key ).
+
+    CHECK LT_PRODUCT IS NOT INITIAL.
+    CHECK LT_PLANT IS NOT INITIAL.
+    CHECK LT_PLANTQT IS NOT INITIAL.
+
+    LOOP AT LT_PRODUCT REFERENCE INTO LS_PRODUCT.
+*      LOOP AT LT_PLANT REFERENCE INTO LS_PLANT.
+        LOOP AT LT_PLANTQT REFERENCE INTO LS_PLANTQT.
+
+          IF LS_PRODUCT->QLTYMGMTINPROCMTISACTIVE IS NOT INITIAL AND LS_PLANTQT->QUALITYMGMTCTRLKEY IS INITIAL.
+             LS_KEY-KEY = lS_plantQT->KEY.
+        APPEND LS_KEY TO ET_FAILED_KEY.
+        LS_LOCATION-BO_KEY = IF_I_PRODUCTWD_C=>SC_BO_KEY."IS_CTX-BO_KEY.
+        LS_LOCATION-NODE_KEY = IF_I_PRODUCTWD_C=>sc_node-i_Productplantqtmanagementwd."IS_CTX-NODE_KEY.
+        LS_LOCATION-KEY = lS_plantQT->KEY.
+        INSERT IF_I_PRODUCTWD_C=>SC_NODE_ATTRIBUTE-i_Productplantqtmanagementwd-QUALITYMGMTCTRLKEY
+              INTO TABLE ls_location-attributes.
+
+       CREATE OBJECT lo_message
+        EXPORTING
+        textid = CM_DRAFTPRD_MESSAGE=>chk_qualitymanagementctrlkey
+        SEVERITY = CM_DRAFTPRD_MESSAGE=>CO_SEVERITY_ERROR
+        SYMPTOM = /BOBF/IF_FRW_MESSAGE_SYMPTOMS=>CO_BO_INCONSISTENCY
+        lifetime = /BOBF/IF_FRW_C=>SC_LIFETIME_SET_BY_BOPF
+        ms_origin_location = ls_location
+*
+         .
+
+      IF EO_MESSAGE IS NOT BOUND.
+         EO_MESSAGE = /BOBF/CL_FRW_FACTORY=>GET_MESSAGE( ).
+       ENDIF.
+         EO_MESSAGE->ADD_CM( EXPORTING IO_MESSAGE = LO_MESSAGE ).
+
+       ENDIF.
+        ENDLOOP.
+*      ENDLOOP.
+    ENDLOOP.
+
+
+
+  endmethod.

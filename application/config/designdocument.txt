@@ -1,0 +1,105 @@
+  1. 
+  TO SET THE API KEY 
+	create a table including following 
+		 id` 
+       `user_id` 
+       `key` 
+       `level` 
+       `ignore_limits` 
+       `is_private_key` 
+       `ip_addresses`
+       `date_created` 
+       PRIMARY KEY (`id`)
+	   In rest.php
+	   set 
+	   $config['rest_enable_keys'] = TRUE;
+	   
+	   
+	   specify the database in autoload.php
+	   
+	   $autoload['libraries'] = array('database');
+	   
+	   
+	   specify the connection in database.php i.e user name and password.
+	   
+			$db['default'] = array(
+	'dsn'	=> '',
+	'hostname' => 'localhost',
+	'username' => 'root',
+	'password' => 'password',
+	'database' => 'product',
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	
+	
+	specify api key in postman 
+			define variable 
+			X-API-KEY     in header
+			
+			
+	we can config our config file to control who exactly can call our api
+	turn ip whitelist to true and set ip address by comma
+	
+	
+	we can store a complete log of api calls in database  very useful when working 
+	with other developers
+	turn api log on 
+	creating db table to store the logopen rest.api
+	 turn on  $config['rest_enable_logging'] = TRUE;
+	  create table Logs 
+	  CREATE TABLE `logs` (
+|       `id` INT(11) NOT NULL AUTO_INCREMENT,
+|       `uri` VARCHAR(255) NOT NULL,
+|       `method` VARCHAR(6) NOT NULL,
+|       `params` TEXT DEFAULT NULL,
+|       `api_key` VARCHAR(40) NOT NULL,
+|       `ip_address` VARCHAR(45) NOT NULL,
+|       `time` INT(11) NOT NULL,
+|       `rtime` FLOAT DEFAULT NULL,
+|       `authorized` VARCHAR(1) NOT NULL,
+|       `response_code` smallint(3) DEFAULT '0',
+|       PRIMARY KEY (`id`)
+|   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	
+	
+	
+	Creating model
+	
+	class name - my_model(jamie rumblow my model)
+	acts as base model which we can extend to all other models in project 
+	it creates observer it sanitises the data before and after retrieving data 
+	supports basic table relationship for simple app we can avoid writing  
+	
+	CREATED A TABLE PRODUCT 
+	CREATE TABLE `products` (
+`PRODUCT_ID` INT(5) NOT NULL AUTO_INCREMENT,
+`PRODUCT_NAME` VARCHAR(15) NOT NULL,
+`PRODUCT_COST` DOUBLE(8, 3) NOT NULL,
+`PRODUCT_WEIGHT` DOUBLE(5,3) NOT NULL,
+`PRODUCT_CATEGORY` VARCHAR(5) ,
+`PRODUCT_STOCK` INT(4),
+`PRODUCT_LOCATION` VARCHAR(10),
+`STATUS` ENUM('active','deleted') NOT NULL DEFAULT 'active',
+`CREATED_TIMESTAMP` DATETIME NOT NULL,
+`UPDATED_TIMESTAMP` DATETIME DEFAULT NULL,
+PRIMARY KEY (`PRODUCT_ID`),
+KEY `STATUS`(`STATUS`)
+)ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+
+create a model 
+	define table which to useful
+	define configuration 
+		define primary key which is there in table
+		specify the return type i.e for now is array , it can also return a obj 
+		
+in api.php 
+instead of harcoading 
+we will load data from model (save in controller folders)
+
+
+best practice is to set status = active/inactive
+		
+
+	
